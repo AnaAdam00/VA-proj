@@ -33,7 +33,7 @@ def getTool(x):
 
 
 def index_raised(yi, y9):
-    if (y9 - yi) > 40:
+    if (y9 - yi) > 90:
         return True
 
     return False
@@ -47,7 +47,7 @@ draw = mp.solutions.drawing_utils
 tools = cv2.imread("tools.png")
 tools = tools.astype('uint8')
 
-mask = np.ones((480, 640)) * 255
+mask = np.ones((480, 640)) * 255#creere background
 mask = mask.astype('uint8')
 '''
 tools = np.zeros((max_y+5, max_x+5, 3), dtype="uint8")
@@ -72,7 +72,7 @@ while True:
             draw.draw_landmarks(frm, i, hands.HAND_CONNECTIONS)
             x, y = int(i.landmark[8].x * 640), int(i.landmark[8].y * 480)
 
-            if x < max_x and y < max_y and x > ml:
+            if x < max_x and y < max_y and x > ml: #distanta tool
                 if time_init:
                     ctime = time.time()
                     time_init = False
@@ -92,7 +92,7 @@ while True:
                 rad = 40
 
             if curr_tool == "draw":
-                xi, yi = int(i.landmark[12].x * 640), int(i.landmark[12].y * 480)
+                xi, yi = int(i.landmark[10].x * 640), int(i.landmark[10].y * 480)
                 y9 = int(i.landmark[9].y * 480)
 
                 if index_raised(yi, y9):
@@ -114,7 +114,7 @@ while True:
                         xii, yii = x, y
                         var_inits = True
 
-                    cv2.line(frm, (xii, yii), (x, y), (50, 152, 255), thick)
+                    cv2.line(frm, (xii, yii), (x, y), (900, 152, 255), thick)
 
                 else:
                     if var_inits:
@@ -130,7 +130,7 @@ while True:
                         xii, yii = x, y
                         var_inits = True
 
-                    cv2.rectangle(frm, (xii, yii), (x, y), (0, 255, 255), thick)
+                    cv2.rectangle(frm, (xii, yii), (x, y), (0, 300, 255), thick)
 
                 else:
                     if var_inits:
@@ -161,15 +161,16 @@ while True:
                     cv2.circle(frm, (x, y), 30, (0, 0, 0), -1)
                     cv2.circle(mask, (x, y), 30, 255, -1)
 
-    op = cv2.bitwise_and(frm, frm, mask=mask)
-    frm[:, :, 1] = op[:, :, 1]
-    frm[:, :, 2] = op[:, :, 2]
+    op = cv2.bitwise_and(frm, frm, mask=mask)#determina epoca
+    frm[:, :, 1] = op[:, :, 1]#incepe
+    frm[:, :, 2] = op[:, :, 2]#se termina
 
     frm[:max_y, ml:max_x] = cv2.addWeighted(tools, 0.7, frm[:max_y, ml:max_x], 0.3, 0)
 
     cv2.putText(frm, curr_tool, (270 + ml, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
     cv2.imshow("paint app", frm)
 
+    cv2.imwrite('C:/Users/alina/Desktop/img.jpg', frm)
     if cv2.waitKey(1) == 27:
         cv2.destroyAllWindows()
         cap.release()
